@@ -14,8 +14,10 @@ var RootDir string
 
 var once = new(sync.Once)
 
+// once.Do能保證方法只被執行一次(即使同時有多個goroutine調用)
 func Init() {
 	once.Do(func() {
+		//這兩個func只會執行一次
 		inferRootDir()
 		initConfig()
 	})

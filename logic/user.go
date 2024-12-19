@@ -109,15 +109,21 @@ func (u *User) ReceiveMessage(ctx context.Context) error {
 }
 
 func genToken(uid int, nickname string) string {
+	//secret :="token-secret" 屬於硬編密鑰
+	//viper是一個配置管理庫，從多種來源讀取配置資訊
+	//"token-secret"是key,GetString嘗試從配置檔案中找到key對應的string
 	secret := viper.GetString("token-secret")
 	message := fmt.Sprintf("%s%s%d", nickname, secret, uid)
 
 	messageMAC := macSha256([]byte(message), []byte(secret))
 
-	return fmt.Sprintf("%suid%d", base64.StdEncoding.EncodeToString(messageMAC), uid)
+	return fmt.Sprintf("%suid%d", base64.StdEncoding.EncodeToString(messageMAC), uid) //這個結果就是token
 }
 
+// 傳入的token為  "%suid%d", base64.StdEncoding.EncodeToString(messageMAC), uid
+// pos的作用在於找到token內含的"uid",u的index賦值pos
 func parseTokenAndValidate(token, nickname string) (int, error) {
+	//在token字符串中找到最後一個出現"uid"的位置。標示uid在token中的起始位置
 	pos := strings.LastIndex(token, "uid")
 	messageMAC, err := base64.StdEncoding.DecodeString(token[:pos])
 	if err != nil {
@@ -125,9 +131,12 @@ func parseTokenAndValidate(token, nickname string) (int, error) {
 	}
 	uid := cast.ToInt(token[pos+3:])
 
+	//這裡
 	secret := viper.GetString("token-secret")
 	message := fmt.Sprintf("%s%s%d", nickname, secret, uid)
+	//到這裡要跟產生token一樣
 
+	//進行MAC驗證
 	ok := validateMAC([]byte(message), messageMAC, []byte(secret))
 	if ok {
 		return uid, nil
@@ -136,10 +145,13 @@ func parseTokenAndValidate(token, nickname string) (int, error) {
 	return 0, errors.New("token is illegal")
 }
 
+// sha-256算法生成hash涵數
 func macSha256(message, secret []byte) []byte {
 	mac := hmac.New(sha256.New, secret)
-	mac.Write(message)
-	return mac.Sum(nil)
+	//io套件: type Writer interface { ***Write(p []byte) (n int, err error)}
+	mac.Write(message) //***
+	//將要計算驗證碼的消息(message)寫入HMAC對象中
+	return mac.Sum(nil) //nil參數代表不做任何計算，回傳[]byte滿足return
 }
 
 func validateMAC(message, messageMAC, secret []byte) bool {
