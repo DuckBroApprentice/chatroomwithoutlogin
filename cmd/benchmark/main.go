@@ -25,6 +25,7 @@ func init() {
 	flag.DurationVar(&msgInterval, "m", 1*time.Minute, "用戶發送消息時間間隔")
 }
 
+// 對一個使用者開啟一個goroutine
 func main() {
 	flag.Parse()
 
@@ -32,7 +33,9 @@ func main() {
 		go UserConnect("user" + strconv.Itoa(i))
 		time.Sleep(loginInterval)
 	}
-
+	//讓goroutine一直阻塞,直到程式被外部信號中斷
+	//本質上是一個無限循環
+	//這是一個主goroutine
 	select {}
 }
 
