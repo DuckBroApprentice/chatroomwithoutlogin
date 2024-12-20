@@ -17,6 +17,18 @@ func WebSocketHandleFunc(w http.ResponseWriter, req *http.Request) {
 		如果 Origin 網域與主機不同，Accept 將拒絕握手，除非設定了 InsecureSkipVerify 選項（透過第三個參數 AcceptOptions 設定）。
 		換句話說，預設情況下，它不允許跨來源請求。如果發生錯誤，Accept 將始終寫入適當的回應
 	*/
+	/*Accept:
+	return newConn(connConfig{
+			subprotocol:    w.Header().Get("Sec-WebSocket-Protocol"),
+			rwc:            netConn,
+			client:         false,
+			copts:          copts,
+			flateThreshold: opts.CompressionThreshold,
+
+			br: brw.Reader,
+			bw: brw.Writer,
+		}), nil
+	*/
 	conn, err := websocket.Accept(w, req, &websocket.AcceptOptions{InsecureSkipVerify: true})
 	if err != nil {
 		log.Println("websocket accept error:", err)
