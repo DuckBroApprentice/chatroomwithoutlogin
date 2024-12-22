@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	flag.IntVar(&userNum, "u", 500, "登錄用戶數")
+	flag.IntVar(&userNum, "u", 5500, "登錄用戶數")
 	flag.DurationVar(&loginInterval, "l", 5e9, "用戶陸續登入時間間隔")
 	flag.DurationVar(&msgInterval, "m", 1*time.Minute, "用戶發送消息時間間隔")
 }
